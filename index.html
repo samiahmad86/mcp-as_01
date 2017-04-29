@@ -30,13 +30,17 @@ var x = d3.scaleBand().rangeRound([0,width]).padding(0),
 var g = svg.append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+
 d3.csv("movies_1.csv", function(d) {
   d.num_voted_users = +d.num_voted_users;
   return d;
 }, function(error, data) {
   if (error) throw error;
 
-  x.domain(data.map(function(d) { return d.movie_title; }));
+x.domain(data.sort(function(a, b) { return d3.ascending(a.movie_title, b.movie_title); })
+        .map(function(d) { return d.movie_title; }));
+
+  // x.domain(data.map(function(d) { return d.movie_title; }));
   y.domain([0, d3.max(data, function(d) { return d.num_voted_users; })]);
 
   g.append("g")

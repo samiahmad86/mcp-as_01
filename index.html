@@ -20,48 +20,71 @@
 <script>
 
 var svg = d3.select("svg"),
-    margin = {top: 20, right: 20, bottom: 30, left: 40},
+    margin = {top: 20, right: 20, bottom: 300, left: 100},
     width = +svg.attr("width") - margin.left - margin.right,
     height = +svg.attr("height") - margin.top - margin.bottom;
 
-var x = d3.scaleBand().rangeRound([0, width]).padding(0.1),
+var x = d3.scaleBand().rangeRound([0,width]).padding(0),
     y = d3.scaleLinear().rangeRound([height, 0]);
 
 var g = svg.append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-d3.tsv("movies-1.csv", function(d) {
-  d.frequency = +d.frequency;
+d3.csv("movies_1.csv", function(d) {
+  d.num_voted_users = +d.num_voted_users;
   return d;
 }, function(error, data) {
   if (error) throw error;
 
-  x.domain(data.map(function(d) { return d.letter; }));
-  y.domain([0, d3.max(data, function(d) { return d.frequency; })]);
+  x.domain(data.map(function(d) { return d.movie_title; }));
+  y.domain([0, d3.max(data, function(d) { return d.num_voted_users; })]);
 
   g.append("g")
       .attr("class", "axis axis--x")
-      .attr("transform", "translate(0," + height + ")")
-      .call(d3.axisBottom(x));
+      .attr("transform", "translate(10," + height + ")")
+      .call(d3.axisBottom(x))
+      .attr("style", " writing-mode: tb; glyph-orientation-vertical: 0")
+      .attr("text-anchor", "start")
+      ;
 
   g.append("g")
       .attr("class", "axis axis--y")
-      .call(d3.axisLeft(y).ticks(10, "%"))
+      .attr("transform",  "translate(10)")
+      .call(d3.axisLeft(y).ticks(10))
     .append("text")
       .attr("transform", "rotate(-90)")
       .attr("y", 6)
       .attr("dy", "0.71em")
       .attr("text-anchor", "end")
-      .text("Frequency");
+      .text("num_voted_users");
+
+// x-axis title
+  svg.append("text")
+    .attr("class", "x label")
+    .attr("text-anchor", "end")
+    .attr("x", width-250)
+    .attr("y", height + 250)
+    .text("Movie Title");
+
+
+//y-axis title
+  svg.append("text")
+    .attr("class", "y label")
+    .attr("text-anchor", "end")
+    .attr("x", -50)
+    .attr("y", height-150 )
+    .attr("dy", ".81em")
+    .attr("transform", "rotate(-90)")
+    .text("Users Votes");
 
   g.selectAll(".bar")
     .data(data)
     .enter().append("rect")
       .attr("class", "bar")
-      .attr("x", function(d) { return x(d.letter); })
-      .attr("y", function(d) { return y(d.frequency); })
+      .attr("x", function(d) { return x(d.movie_title); })
+      .attr("y", function(d) { return y(d.num_voted_users); })
       .attr("width", x.bandwidth())
-      .attr("height", function(d) { return height - y(d.frequency); });
+      .attr("height", function(d) { return height - y(d.num_voted_users); });
 });
 
 </script>
